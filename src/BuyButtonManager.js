@@ -28,7 +28,7 @@ function BuyButtonManager() {
 
   return (
     <div style={{ marginBottom: '30px' }}>
-      <h2>🔗 Lien du bouton "Acheter Boumcoin"</h2>
+      <h2>🔗 Lien du bouton “Acheter Boumcoin”</h2>
       <input
         type="text"
         value={link}
@@ -43,4 +43,4 @@ function BuyButtonManager() {
   );
 }
 
-export default BuyButtonManager;// placeholder
+export default BuyButtonManager;
