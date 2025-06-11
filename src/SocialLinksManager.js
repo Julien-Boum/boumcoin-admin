@@ -1,57 +1,60 @@
-import React, { useEffect, useState } from 'react';
-import { getDatabase, ref, onValue, set } from 'firebase/database';
-import { app } from './firebase';
+import React, { useState, useEffect } from 'react';
 
-const platforms = [
-  { key: 'facebook', label: ' Facebook' },
-  { key: 'instagram', label: ' Instagram' },
-  { key: 'x', label: ' X (ex-Twitter)' },
-  { key: 'tiktok', label: ' TikTok' },
-  { key: 'telegram', label: ' Telegram' },
-  { key: 'discord', label: ' Discord' },
-];
-
-const SocialLinksManager = () => {
-  const [links, setLinks] = useState({});
-  const db = getDatabase(app);
+function SocialLinksManager() {
+  const [links, setLinks] = useState({
+    tiktok: '',
+    instagram: '',
+    x: '',
+    facebook: '',
+    discord: '',
+    telegram: ''
+  });
 
   useEffect(() => {
-    const linksRef = ref(db, 'socialLinks');
-    onValue(linksRef, (snapshot) => {
-      if (snapshot.exists()) {
-        setLinks(snapshot.val());
-      }
-    });
-  }, [db]);
+    fetch('/texts.json')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.socials) {
+          setLinks(data.socials);
+        }
+      });
+  }, []);
 
-  const handleChange = (key, value) => {
-    setLinks((prev) => ({ ...prev, [key]: value }));
+  const handleChange = (e) => {
+    setLinks({ ...links, [e.target.name]: e.target.value });
   };
 
   const handleSave = () => {
-    const linksRef = ref(db, 'socialLinks');
-    set(linksRef, links)
-      .then(() => alert('Liens mis à jour avec succès !'))
-      .catch((error) => alert('Erreur : ' + error.message));
+    const updated = { socials: links };
+    const blob = new Blob([JSON.stringify(updated, null, 2)], {
+      type: 'application/json',
+    });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'texts.json';
+    a.click();
   };
 
   return (
-    <div>
-      <h2>🔗 Gestion des Réseaux Sociaux</h2>
-      {platforms.map((platform) => (
-        <div key={platform.key} style={{ marginBottom: '10px' }}>
-          <label>{platform.label} : </label>
+    <div style={{ padding: '20px' }}>
+      <h2>🌐 Liens des réseaux sociaux</h2>
+      {Object.keys(links).map((key) => (
+        <div key={key} style={{ marginBottom: '10px' }}>
+          <label style={{ display: 'block', fontWeight: 'bold' }}>{key}</label>
           <input
             type="text"
-            value={links[platform.key] || ''}
-            onChange={(e) => handleChange(platform.key, e.target.value)}
-            style={{ width: '60%' }}
+            name={key}
+            value={links[key]}
+            onChange={handleChange}
+            style={{ width: '100%', padding: '8px' }}
           />
         </div>
       ))}
-      <button onClick={handleSave}>💾 Sauvegarder les liens</button>
+      <button onClick={handleSave} style={{ marginTop: '10px' }}>
+        💾 Sauvegarder les liens
+      </button>
     </div>
   );
-};
+}
 
 export default SocialLinksManager;
