@@ -1,40 +1,57 @@
+import React, { useEffect, useState } from 'react';
+import { getDatabase, ref, onValue, set } from 'firebase/database';
+import { app } from './firebase';
 
-import React, { useState } from 'react';
+const platforms = [
+  { key: 'facebook', label: ' Facebook' },
+  { key: 'instagram', label: ' Instagram' },
+  { key: 'x', label: ' X (ex-Twitter)' },
+  { key: 'tiktok', label: ' TikTok' },
+  { key: 'telegram', label: ' Telegram' },
+  { key: 'discord', label: ' Discord' },
+];
 
-function SocialLinksManager() {
-  const [links, setLinks] = useState({
-    tiktok: '',
-    instagram: '',
-    x: '',
-    facebook: '',
-    discord: '',
-    telegram: ''
-  });
+const SocialLinksManager = () => {
+  const [links, setLinks] = useState({});
+  const db = getDatabase(app);
 
-  const handleChange = (e) => {
-    setLinks({ ...links, [e.target.name]: e.target.value });
+  useEffect(() => {
+    const linksRef = ref(db, 'socialLinks');
+    onValue(linksRef, (snapshot) => {
+      if (snapshot.exists()) {
+        setLinks(snapshot.val());
+      }
+    });
+  }, [db]);
+
+  const handleChange = (key, value) => {
+    setLinks((prev) => ({ ...prev, [key]: value }));
   };
 
   const handleSave = () => {
-    const blob = new Blob([JSON.stringify(links, null, 2)], { type: 'application/json' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'socials.json';
-    a.click();
+    const linksRef = ref(db, 'socialLinks');
+    set(linksRef, links)
+      .then(() => alert('Liens mis à jour avec succès !'))
+      .catch((error) => alert('Erreur : ' + error.message));
   };
 
   return (
     <div>
-      <h2>Liens des réseaux sociaux</h2>
-      {Object.keys(links).map((key) => (
-        <div key={key}>
-          <label>{key}</label>
-          <input name={key} value={links[key]} onChange={handleChange} style={{ width: '80%' }} />
+      <h2>🔗 Gestion des Réseaux Sociaux</h2>
+      {platforms.map((platform) => (
+        <div key={platform.key} style={{ marginBottom: '10px' }}>
+          <label>{platform.label} : </label>
+          <input
+            type="text"
+            value={links[platform.key] || ''}
+            onChange={(e) => handleChange(platform.key, e.target.value)}
+            style={{ width: '60%' }}
+          />
         </div>
       ))}
-      <button onClick={handleSave}>Télécharger le JSON</button>
+      <button onClick={handleSave}>💾 Sauvegarder les liens</button>
     </div>
   );
-}
+};
 
 export default SocialLinksManager;
