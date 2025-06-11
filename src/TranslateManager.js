@@ -1,73 +1,56 @@
-import React, { useEffect, useState } from 'react';
-import { getDatabase, ref, onValue, set } from 'firebase/database';
-import { app } from './firebase';
+import React, { useState, useEffect } from 'react';
 
-const supportedLanguages = ['fr', 'en', 'es', 'it', 'de', 'pt'];
-
-const textKeys = [
-  'hero_title',
-  'hero_subtitle',
-  'about_title',
-  'about_content',
-  'faq_title',
-  'faq_content',
-  'contact_title',
-  'contact_subtitle',
-  'buy_button_label',
-];
-
-const TextsManager = () => {
-  const [texts, setTexts] = useState({});
-  const db = getDatabase(app);
+function TranslateManager() {
+  const [translations, setTranslations] = useState({
+    fr: '',
+    en: '',
+    es: '',
+    it: '',
+    de: '',
+    pt: ''
+  });
 
   useEffect(() => {
-    const textsRef = ref(db, 'siteTexts');
-    onValue(textsRef, (snapshot) => {
-      if (snapshot.exists()) {
-        setTexts(snapshot.val());
-      }
-    });
+    fetch('/translations.json')
+      .then((res) => res.json())
+      .then((data) => setTranslations(data));
   }, []);
 
-  const handleChange = (lang, key, value) => {
-    setTexts((prev) => ({
-      ...prev,
-      [lang]: {
-        ...prev[lang],
-        [key]: value,
-      },
-    }));
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setTranslations({ ...translations, [name]: value });
   };
 
   const handleSave = () => {
-    const textsRef = ref(db, 'siteTexts');
-    set(textsRef, texts)
-      .then(() => alert('📝 Textes enregistrés !'))
-      .catch((error) => alert('❌ Erreur : ' + error.message));
+    const blob = new Blob([JSON.stringify(translations, null, 2)], {
+      type: 'application/json',
+    });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'translations.json';
+    a.click();
   };
 
   return (
-    <div>
+    <div style={{ padding: '20px' }}>
       <h2>🌍 Gestion des textes multilingues</h2>
-      {supportedLanguages.map((lang) => (
-        <div key={lang} style={{ marginBottom: '20px', border: '1px solid #ccc', padding: '10px' }}>
-          <h3>Langue : {lang.toUpperCase()}</h3>
-          {textKeys.map((key) => (
-            <div key={key} style={{ marginBottom: '10px' }}>
-              <label>{key} :</label>
-              <input
-                type="text"
-                value={(texts[lang] && texts[lang][key]) || ''}
-                onChange={(e) => handleChange(lang, key, e.target.value)}
-                style={{ width: '70%' }}
-              />
-            </div>
-          ))}
+      {Object.entries(translations).map(([lang, value]) => (
+        <div key={lang} style={{ marginBottom: '15px' }}>
+          <label style={{ fontWeight: 'bold' }}>{lang.toUpperCase()}</label>
+          <textarea
+            name={lang}
+            value={value}
+            onChange={handleChange}
+            rows={3}
+            style={{ width: '100%', padding: '8px' }}
+          />
         </div>
       ))}
-      <button onClick={handleSave}>💾 Sauvegarder les textes</button>
+      <button onClick={handleSave} style={{ marginTop: '10px' }}>
+        💾 Sauvegarder les traductions
+      </button>
     </div>
   );
-};
+}
 
-export default TextsManager;
+export default TranslateManager;
