@@ -1,0 +1,32 @@
+{
+  "fr": {
+    "homepage_title": "Bienvenue sur Boumcoin",
+    "buy_button": "Acheter des Boumcoin",
+    "contact_us": "Contactez-nous"
+  },
+  "en": {
+    "homepage_title": "Welcome to Boumcoin",
+    "buy_button": "Buy Boumcoin",
+    "contact_us": "Contact Us"
+  },
+  "es": {
+    "homepage_title": "Bienvenido a Boumcoin",
+    "buy_button": "Comprar Boumcoin",
+    "contact_us": "Contáctenos"
+  },
+  "it": {
+    "homepage_title": "Benvenuto su Boumcoin",
+    "buy_button": "Acquista Boumcoin",
+    "contact_us": "Contattaci"
+  },
+  "de": {
+    "homepage_title": "Willkommen bei Boumcoin",
+    "buy_button": "Boumcoin kaufen",
+    "contact_us": "Kontaktieren Sie uns"
+  },
+  "pt": {
+    "homepage_title": "Bem-vindo ao Boumcoin",
+    "buy_button": "Comprar Boumcoin",
+    "contact_us": "Contate-nos"
+  }
+}
